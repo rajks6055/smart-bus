@@ -132,15 +132,19 @@ export const BusTrackingMap = ({ routes, buses, onBusClick, onStopClick }: BusTr
             return (
               <div
                 key={stop.id}
-                className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-125 transition-transform z-15"
+                className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-150 transition-all duration-200 z-30"
                 style={{
                   left: `${screen.x}%`,
                   top: `${screen.y}%`,
                 }}
-                onClick={() => onStopClick?.(stop.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('Stop marker clicked:', stop.id, stop.name);
+                  onStopClick?.(stop.id);
+                }}
                 title={stop.name}
               >
-                <div className="w-4 h-4 bg-white border-3 border-slate-700 rounded-full shadow-lg hover:bg-yellow-200 transition-colors">
+                <div className="w-6 h-6 bg-white border-4 border-slate-700 rounded-full shadow-xl hover:bg-yellow-300 hover:border-yellow-600 transition-colors">
                   <div className="w-2 h-2 bg-slate-700 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
                 </div>
               </div>

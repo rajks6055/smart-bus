@@ -58,6 +58,7 @@ export const LiveTracking = () => {
   };
 
   const handleStopClick = (stopId: string) => {
+    console.log('Stop clicked:', stopId);
     setSelectedStop(stopId);
   };
 
@@ -166,13 +167,28 @@ export const LiveTracking = () => {
         <div className="p-6 border-t border-sidebar-text/20">
           <h2 className="text-lg font-semibold mb-2">SELECTED STOP</h2>
           {selectedStop ? (
-            <div className="text-sm text-sidebar-text/70">
-              <p>Stop ID: {selectedStop}</p>
-              <p>Click a stop marker to view ETAs.</p>
+            <div className="text-sm space-y-2">
+              <div className="bg-sidebar-accent/20 p-3 rounded-lg">
+                <p className="font-semibold text-sidebar-text">
+                  {routes.flatMap(r => r.stops).find(s => s.id === selectedStop)?.name || 'Unknown Stop'}
+                </p>
+                <p className="text-sidebar-text/70">Stop ID: {selectedStop}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="font-medium text-sidebar-text">Upcoming Buses:</p>
+                {buses
+                  .filter(bus => routes.find(r => r.id === bus.routeId)?.stops.some(s => s.id === selectedStop))
+                  .map(bus => (
+                    <div key={bus.id} className="flex justify-between text-xs text-sidebar-text/80 bg-sidebar-text/10 p-2 rounded">
+                      <span>{bus.number}</span>
+                      <span>ETA: {bus.etaToNextStop.toFixed(1)} min</span>
+                    </div>
+                  ))}
+              </div>
             </div>
           ) : (
             <p className="text-sm text-sidebar-text/50">
-              Click a stop marker to view ETAs.
+              Click a stop marker on the map to view ETAs.
             </p>
           )}
         </div>
