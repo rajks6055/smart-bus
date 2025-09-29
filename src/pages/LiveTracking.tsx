@@ -11,24 +11,44 @@ export const LiveTracking = () => {
   const [buses, setBuses] = useState<Bus[]>(initialBuses);
   const [selectedStop, setSelectedStop] = useState<string | null>(null);
 
-  // Simulate real-time bus movement
+  // Simulate real-time bus movement with slower, more visible movement
   useEffect(() => {
     const interval = setInterval(() => {
       setBuses(prevBuses => 
-        prevBuses.map(bus => ({
-          ...bus,
-          // Slightly modify position to simulate movement
-          currentPosition: [
-            bus.currentPosition[0] + (Math.random() - 0.5) * 0.001,
-            bus.currentPosition[1] + (Math.random() - 0.5) * 0.001,
-          ] as [number, number],
-          // Update ETA
-          etaToNextStop: Math.max(0.1, bus.etaToNextStop - 0.1),
-          // Occasionally change speed
-          speed: bus.speed + (Math.random() - 0.5) * 2,
-        }))
+        prevBuses.map(bus => {
+          const route = routes.find(r => r.id === bus.routeId);
+          if (!route) return bus;
+
+          // Calculate movement direction based on route
+          const routeCoords = route.coordinates;
+          const currentIndex = routeCoords.findIndex(coord => 
+            Math.abs(coord[0] - bus.currentPosition[0]) < 0.1 && 
+            Math.abs(coord[1] - bus.currentPosition[1]) < 0.1
+          );
+          
+          // Move towards next coordinate or along route
+          const nextIndex = (currentIndex + 1) % routeCoords.length;
+          const nextCoord = routeCoords[nextIndex] || routeCoords[0];
+          
+          // Calculate smooth movement towards next coordinate
+          const latDiff = (nextCoord[0] - bus.currentPosition[0]) * 0.002;
+          const lngDiff = (nextCoord[1] - bus.currentPosition[1]) * 0.002;
+
+          return {
+            ...bus,
+            // Smooth movement along route
+            currentPosition: [
+              bus.currentPosition[0] + latDiff + (Math.random() - 0.5) * 0.0005,
+              bus.currentPosition[1] + lngDiff + (Math.random() - 0.5) * 0.0005,
+            ] as [number, number],
+            // Update ETA
+            etaToNextStop: Math.max(0.1, bus.etaToNextStop - 0.05),
+            // Slight speed variation
+            speed: Math.max(20, Math.min(60, bus.speed + (Math.random() - 0.5) * 1.5)),
+          };
+        })
       );
-    }, 5000);
+    }, 2000); // Update every 2 seconds for smoother movement
 
     return () => clearInterval(interval);
   }, []);

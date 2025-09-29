@@ -8,84 +8,84 @@ export const languages: LanguageOption[] = [
 ];
 
 export const stops: Stop[] = [
-  { id: 'stop1', name: 'Central Bus Station', coordinates: [26.1445, 91.7362] },
-  { id: 'stop2', name: 'Railway Station', coordinates: [26.1812, 91.7479] },
-  { id: 'stop3', name: 'GS Road Junction', coordinates: [26.1558, 91.7496] },
-  { id: 'stop4', name: 'Fancy Bazaar', coordinates: [26.1750, 91.7514] },
-  { id: 'stop5', name: 'Pan Bazaar', coordinates: [26.1833, 91.7540] },
-  { id: 'stop6', name: 'Paltan Bazaar', coordinates: [26.1722, 91.7587] },
-  { id: 'stop7', name: 'Zoo Road', coordinates: [26.1667, 91.7654] },
-  { id: 'stop8', name: 'Cotton University', coordinates: [26.1478, 91.7890] },
+  { id: 'stop1', name: 'Chandigarh Bus Stand', coordinates: [30.7333, 76.7794] },
+  { id: 'stop2', name: 'Amritsar Railway Station', coordinates: [31.6340, 74.8723] },
+  { id: 'stop3', name: 'Ludhiana Central', coordinates: [30.9010, 75.8573] },
+  { id: 'stop4', name: 'Patiala Bus Stand', coordinates: [30.3398, 76.3869] },
+  { id: 'stop5', name: 'Jalandhar City', coordinates: [31.3260, 75.5762] },
+  { id: 'stop6', name: 'Bathinda Junction', coordinates: [30.2110, 74.9455] },
+  { id: 'stop7', name: 'Mohali Phase 7', coordinates: [30.7046, 76.7179] },
+  { id: 'stop8', name: 'Pathankot Cantt', coordinates: [32.2733, 75.6523] },
 ];
 
 export const routes: Route[] = [
   {
     id: 'route-a',
-    name: 'Route A',
+    name: 'Chandigarh - Ludhiana Express',
     color: '#E91E63',
     coordinates: [
-      [26.1445, 91.7362],
-      [26.1558, 91.7496],
-      [26.1750, 91.7514],
-      [26.1833, 91.7540],
-      [26.1722, 91.7587],
+      [30.7333, 76.7794], // Chandigarh
+      [30.7046, 76.7179], // Mohali
+      [30.3398, 76.3869], // Patiala
+      [30.9010, 75.8573], // Ludhiana
+      [31.3260, 75.5762], // Jalandhar
     ],
-    stops: stops.slice(0, 5),
+    stops: [stops[0], stops[6], stops[3], stops[2], stops[4]],
   },
   {
     id: 'route-b',
-    name: 'Route B',
+    name: 'Amritsar - Bathinda Line',
     color: '#2196F3',
     coordinates: [
-      [26.1812, 91.7479],
-      [26.1667, 91.7654],
-      [26.1478, 91.7890],
-      [26.1558, 91.7496],
+      [31.6340, 74.8723], // Amritsar
+      [32.2733, 75.6523], // Pathankot
+      [31.3260, 75.5762], // Jalandhar
+      [30.2110, 74.9455], // Bathinda
     ],
-    stops: [stops[1], stops[6], stops[7], stops[2]],
+    stops: [stops[1], stops[7], stops[4], stops[5]],
   },
 ];
 
 export const buses: Bus[] = [
   {
     id: 'bus-101',
-    number: 'BUS-101',
+    number: 'PB-01-101',
     routeId: 'route-a',
     status: 'Moving',
-    speed: 24.0,
-    etaToNextStop: 1.1,
+    speed: 45.0,
+    etaToNextStop: 3.2,
     crowdLevel: 'available',
-    currentPosition: [26.1500, 91.7450],
+    currentPosition: [30.7200, 76.7500],
   },
   {
     id: 'bus-102',
-    number: 'BUS-102',
+    number: 'PB-01-102',
     routeId: 'route-a',
     status: 'Moving',
-    speed: 23.6,
-    etaToNextStop: 0.6,
+    speed: 42.5,
+    etaToNextStop: 1.8,
     crowdLevel: 'standing',
-    currentPosition: [26.1680, 91.7530],
+    currentPosition: [30.5500, 76.5000],
   },
   {
     id: 'bus-201',
-    number: 'BUS-201',
+    number: 'PB-02-201',
     routeId: 'route-b',
     status: 'Moving',
-    speed: 40.3,
-    etaToNextStop: 0.5,
+    speed: 38.0,
+    etaToNextStop: 2.5,
     crowdLevel: 'full',
-    currentPosition: [26.1750, 91.7600],
+    currentPosition: [31.4000, 74.9000],
   },
   {
     id: 'bus-202',
-    number: 'BUS-202',
+    number: 'PB-02-202',
     routeId: 'route-b',
     status: 'Moving',
-    speed: 25.9,
-    etaToNextStop: 4.0,
+    speed: 35.5,
+    etaToNextStop: 4.1,
     crowdLevel: 'available',
-    currentPosition: [26.1600, 91.7700],
+    currentPosition: [31.8000, 75.2000],
   },
 ];
 
