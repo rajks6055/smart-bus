@@ -103,10 +103,12 @@ export const BusTrackingMap = ({ routes, buses, onBusClick, onStopClick }: BusTr
             >
               <div className="relative animate-pulse">
                 <div 
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-xl border-2 border-white"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-xl border-2 border-white relative"
                   style={{ backgroundColor: route?.color || '#2196F3' }}
                 >
-                  🚌
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                    <path d="M4 6h16v9H4V6zm2 2v2h2V8H6zm4 0v2h4V8h-4zm6 0v2h2V8h-2zm-8 6h8v1H8v-1zm-1 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm10 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                  </svg>
                 </div>
                 {/* Speed indicator */}
                 <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-1 py-0.5 rounded opacity-0 hover:opacity-100 transition-opacity whitespace-nowrap">
@@ -166,7 +168,11 @@ export const BusTrackingMap = ({ routes, buses, onBusClick, onStopClick }: BusTr
               <span className="text-foreground font-medium">Bus Stops</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-4 h-4 bg-blue-500 rounded flex items-center justify-center text-white text-xs">🚌</div>
+              <div className="w-4 h-4 bg-blue-500 rounded flex items-center justify-center text-white">
+                <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current">
+                  <path d="M4 6h16v9H4V6zm2 2v2h2V8H6zm4 0v2h4V8h-4zm6 0v2h2V8h-2z"/>
+                </svg>
+              </div>
               <span className="text-foreground font-medium">Live Buses</span>
             </div>
           </div>
