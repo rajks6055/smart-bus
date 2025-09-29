@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { JourneyPlanner } from '@/components/JourneyPlanner';
+import { JourneyPlanner, JourneyPlannerHandle } from '@/components/JourneyPlanner';
 import { SOSButton } from '@/components/SOSButton';
 import { MapPin, Calculator, Navigation, Star, Settings } from 'lucide-react';
 import { JourneyResult } from '@/types';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { routes } from '@/data/mockData';
+import { useRef } from 'react';
+import { useAuth } from '@/hooks/use-auth';
 
 export const Home = () => {
+  const plannerRef = useRef<JourneyPlannerHandle>(null);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const handleJourneySearch = (from: string, to: string): JourneyResult | null => {
     // Mock journey search result
     return {
@@ -33,16 +39,35 @@ export const Home = () => {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-foreground">🚍 Bus Tracker</h1>
             <div className="flex items-center gap-4">
+              {user && (
+                <span className="text-sm text-muted-foreground hidden md:inline">{user.email}</span>
+              )}
               <Link to="/live-tracking">
                 <Button variant="outline" size="sm">
                   <Navigation className="h-4 w-4 mr-2" />
                   Live Tracking
                 </Button>
               </Link>
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </Button>
+              {user ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    logout();
+                    navigate('/login', { replace: true });
+                  }}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              ) : (
+                <Link to="/login">
+                  <Button variant="outline" size="sm">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Login
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -53,7 +78,28 @@ export const Home = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Journey Planner */}
           <div className="lg:col-span-2">
-            <JourneyPlanner onSearch={handleJourneySearch} />
+            <JourneyPlanner ref={plannerRef} onSearch={handleJourneySearch} />
+            {/* Quick Searches */}
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button
+                className="text-left text-sm px-3 py-2 rounded border hover:bg-muted"
+                onClick={() => plannerRef.current?.quickSearch('Chandigarh Bus Stand', 'Ludhiana Central')}
+              >
+                Chandigarh Bus Stand → Ludhiana Central
+              </button>
+              <button
+                className="text-left text-sm px-3 py-2 rounded border hover:bg-muted"
+                onClick={() => plannerRef.current?.quickSearch('Amritsar Railway Station', 'Bathinda Junction')}
+              >
+                Amritsar Railway Station → Bathinda Junction
+              </button>
+              <button
+                className="text-left text-sm px-3 py-2 rounded border hover:bg-muted"
+                onClick={() => plannerRef.current?.quickSearch('Mohali Phase 7', 'Patiala Bus Stand')}
+              >
+                Mohali Phase 7 → Patiala Bus Stand
+              </button>
+            </div>
             
             {/* Quick Actions */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">

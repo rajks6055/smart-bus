@@ -1,15 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { BusTrackingMap } from '@/components/BusTrackingMap';
+import LeafletPunjabMap from '@/components/LeafletPunjabMap';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Bus as BusIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { routes, buses as initialBuses } from '@/data/mockData';
 import { Bus, Route } from '@/types';
+import BusSidebar from '@/components/BusSidebar';
 
 export const LiveTracking = () => {
   const [buses, setBuses] = useState<Bus[]>(initialBuses);
   const [selectedStop, setSelectedStop] = useState<string | null>(null);
+  const [selectedBusId, setSelectedBusId] = useState<string | null>(null);
 
   // Simulate real-time bus movement with slower, more visible movement
   useEffect(() => {
@@ -54,12 +57,12 @@ export const LiveTracking = () => {
   }, []);
 
   const handleBusClick = (bus: Bus) => {
-    console.log('Bus clicked:', bus);
+    setSelectedBusId(bus.id);
   };
 
   const handleStopClick = (stopId: string) => {
-    console.log('Stop clicked:', stopId);
     setSelectedStop(stopId);
+    setSelectedBusId(null);
   };
 
   const getRouteInfo = (routeId: string) => {
@@ -84,6 +87,13 @@ export const LiveTracking = () => {
     }
   };
 
+  const selectedBus = useMemo(() => buses.find(b => b.id === selectedBusId) || null, [buses, selectedBusId]);
+  const selectedRoute = useMemo<Route | null>(() => (selectedBus ? getRouteInfo(selectedBus.routeId) || null : null), [selectedBus]);
+
+  const activeRouteIds = useMemo(() => new Set(buses.map(b => b.routeId)), [buses]);
+  const visibleRoutes = useMemo(() => routes.filter(r => activeRouteIds.has(r.id)), [activeRouteIds]);
+  const visibleBuses = useMemo(() => buses.filter(b => activeRouteIds.has(b.routeId)), [activeRouteIds, buses]);
+
   return (
     <div className="h-screen flex bg-background">
       {/* Sidebar */}
@@ -102,11 +112,11 @@ export const LiveTracking = () => {
           </div>
         </div>
 
-        {/* Routes Section */}
+        {/* Routes Section (active only) */}
         <div className="p-6 border-b border-sidebar-text/20">
           <h2 className="text-lg font-semibold mb-4">ROUTES</h2>
           <div className="space-y-2">
-            {routes.map(route => (
+            {visibleRoutes.map(route => (
               <div key={route.id} className="flex items-center gap-3">
                 <div 
                   className="w-3 h-3 rounded-full"
@@ -122,10 +132,14 @@ export const LiveTracking = () => {
         <div className="flex-1 p-6 overflow-y-auto">
           <h2 className="text-lg font-semibold mb-4">BUSES</h2>
           <div className="space-y-3">
-            {buses.map(bus => {
+            {visibleBuses.map(bus => {
               const route = getRouteInfo(bus.routeId);
               return (
-                <Card key={bus.id} className="bg-sidebar-text/10 border-sidebar-text/20 p-4">
+                <Card
+                  key={bus.id}
+                  className={`bg-sidebar-text/10 border ${selectedBusId === bus.id ? 'border-sidebar-accent' : 'border-sidebar-text/20'} p-4 cursor-pointer`}
+                  onClick={() => setSelectedBusId(bus.id)}
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <BusIcon className="h-4 w-4 text-sidebar-accent" />
@@ -148,13 +162,6 @@ export const LiveTracking = () => {
                     <div className="text-sidebar-text/70">
                       <div>Speed: {bus.speed.toFixed(1)} mph</div>
                       <div>ETA to next stop: {bus.etaToNextStop.toFixed(1)} min</div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 mt-2">
-                      <span>{getCrowdEmoji(bus.crowdLevel)}</span>
-                      <span className="text-xs text-sidebar-text/70">
-                        {getCrowdText(bus.crowdLevel)}
-                      </span>
                     </div>
                   </div>
                 </Card>
@@ -203,13 +210,43 @@ export const LiveTracking = () => {
 
       {/* Map Container */}
       <div className="flex-1">
-        <BusTrackingMap
-          routes={routes}
-          buses={buses}
-          onBusClick={handleBusClick}
-          onStopClick={handleStopClick}
-        />
+        <div className="h-full hidden lg:block">
+          <LeafletPunjabMap
+            routes={visibleRoutes}
+            buses={visibleBuses}
+            onBusClick={handleBusClick}
+            onStopClick={handleStopClick}
+            center={[30.7333, 76.7794]}
+            zoom={12}
+          />
+        </div>
+        <div className="h-full block lg:hidden">
+          <BusTrackingMap
+            routes={visibleRoutes}
+            buses={visibleBuses}
+            onBusClick={handleBusClick}
+            onStopClick={handleStopClick}
+          />
+        </div>
       </div>
+
+      {/* Details Sidebar */}
+      <BusSidebar
+        selectedBus={selectedBus}
+        route={selectedRoute}
+        selectedStopId={selectedStop}
+        arrivals={useMemo(() => {
+          if (!selectedStop) return [] as { bus: Bus; etaMin: number }[];
+          // Dummy ETA calculation: base on distance in index order along the route
+          const stopRoute = routes.find(r => r.stops.some(s => s.id === selectedStop));
+          if (!stopRoute) return [] as { bus: Bus; etaMin: number }[];
+          const stopIndex = stopRoute.stops.findIndex(s => s.id === selectedStop);
+          return visibleBuses
+            .filter(b => b.routeId === stopRoute.id)
+            .map(b => ({ bus: b, etaMin: Math.max(1, (stopIndex + 1) * 2 - (b.speed % 2)) }))
+            .sort((a, b) => a.etaMin - b.etaMin);
+        }, [selectedStop, visibleBuses])}
+      />
     </div>
   );
 };
